@@ -26,6 +26,17 @@ def collisions(player,obstacles):
         for obstacle_rectangle in obstacles:
             if player.colliderect(obstacle_rectangle): return False
     return True
+
+def player_animation():
+    global player_surface, player_index
+    if player_rectangle.bottom < 300:
+        player_surface = player_jump
+    else:
+        player_index += 0.1
+        if player_index >= len(player_walk): player_index = 0
+        player_surface = player_walk[int(player_index)]
+    screen.blit()
+
 pygame.init()
 
 # set dimensions for game user interface
@@ -49,7 +60,13 @@ fly_surface = pygame.image.load('images/fly/Fly1.png').convert_alpha()
 obstacle_rectangle_list = []
 
 # import the player character image and set dimensions
-player_surface = pygame.image.load('images/player/player_walk_1.png').convert_alpha()
+player_walk_1 = pygame.image.load('images/player/player_walk_1.png').convert_alpha()
+player_walk_2 = pygame.image.load('images/player/player_walk_2.png').convert_alpha()
+player_walk = [player_walk_1,player_walk_2]
+player_index = 0
+player_jump = pygame.image.load('images/player/jump.png').convert_alpha()
+
+player_surface = player_walk[player_index]
 player_rectangle = player_surface.get_rect(midbottom = (80,300))
 player_gravity = 0
 
@@ -66,7 +83,7 @@ game_message_rectangle = game_message.get_rect(center = (400,320))
 
 # Event timer
 obstacle_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(obstacle_timer,2000)
+pygame.time.set_timer(obstacle_timer,1400)
 
 # while loop to ensure game runs repeatedly
 while True:
@@ -124,11 +141,14 @@ while True:
         obstacle_rectangle_list = obstacle_movement(obstacle_rectangle_list)
 
         # collision algorithm
-        game_active = (player_rectangle,obstacle_rectangle_list)
+        game_active = collisions(player_rectangle,obstacle_rectangle_list)
 
     else:
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rectangle)
+        obstacle_rectangle_list.clear()
+        player_rectangle.midbottom = (80,300)
+        player_gravity = 0
 
         score_message = test_font.render(f'Your Score: {score}',False, (111,196,169))
         score_message_rectangle = score_message.get_rect(center = (400,330))
